@@ -1,12 +1,14 @@
 from django.shortcuts import render
 
-from django.http import HttpResponse , Http404
+from django.http import HttpResponse , Http404 ,HttpResponseForbidden
 
 from django.core import serializers as szs
 
 from server.models import BoardGame , Player
 
 from server.forms import *
+
+from django.contrib.auth import authenticate, login , logout
 
 
 
@@ -38,6 +40,9 @@ def boardgames(request ):
 
 def boardgames_name(request, boardgame_name):
     
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden()
+    
     datas = boardgame_name.split(',')
     
     objs = []
@@ -52,16 +57,36 @@ def boardgames_name(request, boardgame_name):
     
     print (objs)
     data = szs.serialize("json",objs)
-    if request.session.get('has_commented', False):
-        return HttpResponse( "already got" )
-    else:
-        request.session['has_commented'] = True
-        return HttpResponse(data)
+    
+    return HttpResponse(data)
 
-'''
-def login( request, login , password ):
-    pass
-'''
+
+def user_login( request, user , password ):
+    
+    if request.user.is_authenticated():
+        print("already authenticated")        
+        logout(request )
+        
+    newuser = authenticate(username=user, password=password)
+    if newuser is not None:
+        login(request, newuser)
+        # Redirect to a success page.
+        return HttpResponse("ok"  )        
+    else:
+        return HttpResponseForbidden()
+        
+            
+
+
+def user_logout( request ):
+    if request.user.is_authenticated():            
+        logout(request )
+        return HttpResponse("ok")
+    
+    return HttpResponse("vide")
+        
+    
+    
 
 def add_player(request):
     if request.method == 'POST':

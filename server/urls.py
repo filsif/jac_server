@@ -8,5 +8,6 @@ urlpatterns = [
     url(r'^boardgame/id/(?P<boardgame_id>[0-9]+(,[0-9]+)*)/$', views.boardgames_id, name='boardgame_id'),
     url(r'^boardgame/name/(?P<boardgame_name>[a-zA-Z0-9 ]+(,[A-Za-z0-9 ]+)*)/$', views.boardgames_name, name='boardgame_name'),
     url(r'^player/add/$', views.add_player ),
-    #url(r'^login/(?P<login>(.)+)/(?P<password>(.)+)/$', views.login, name='login'),
+    url(r'^login/(?P<user>(.)+)/(?P<password>(.)+)/$', views.user_login, name='login'),
+    url(r'^logout/$', views.user_logout, name='logout'),
 ]
