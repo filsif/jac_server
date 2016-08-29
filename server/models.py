@@ -48,6 +48,9 @@ class Player(models.Model):
     birthdate       = models.DateField()
     address         = models.CharField( max_length = 256 )    
     mobile_phone    = models.CharField( max_length = 20 )
+    bgg_nickname    = models.CharField( max_length = 64 ,default ='' )
+    bgg_sync        = models.BooleanField( default=False)
+    
     
 
 

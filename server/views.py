@@ -35,7 +35,7 @@ def boardgames_id(request, boardgame_id):
 
 def boardgames(request ):     
     data = szs.serialize("json",BoardGame.objects.all())
-    return HttpResponse( "filsif\r\n" + data )
+    return HttpResponse( data )
 
 
 def boardgames_name(request, boardgame_name):
@@ -85,6 +85,30 @@ def user_logout( request ):
     
     return HttpResponse("vide")
         
+        
+def add_boardgame(request):
+    #if not request.user.is_authenticated():
+    #    return HttpResponseForbidden()
+    
+    if request.method == 'POST':
+        form = BoardGameForm( request.POST , request.FILES )
+        
+        if form.is_valid():
+            files = request.FILES.getlist('files')
+            
+            count = 0
+            for f in files:
+                with open(str(count) + '.jpg', 'wb+') as destination:
+                    for chunk in f.chunks():
+                        destination.write(chunk)
+                count = count +1
+
+            return HttpResponse(  "ok" )
+        else:
+            print("erreur " + str(form.errors))
+            return HttpResponseForbidden()
+    else:
+        raise Http404("Not a POST request")
     
     
 
@@ -92,6 +116,7 @@ def add_player(request):
     if request.method == 'POST':
         print ("TOTO : " + str(request.POST)) 
         form = PlayerForm(request.POST)
+        
         if form.is_valid():
             firstname       = form.cleaned_data['firstname']
             lastname        = form.cleaned_data['lastname']
