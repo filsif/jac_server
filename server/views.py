@@ -94,14 +94,52 @@ def add_boardgame(request):
         form = BoardGameForm( request.POST , request.FILES )
         
         if form.is_valid():
-            files = request.FILES.getlist('files')
+            
             
             count = 0
-            for f in files:
-                with open(str(count) + '.jpg', 'wb+') as destination:
-                    for chunk in f.chunks():
+            
+            cover = None
+            snapshot = None
+            
+            try:
+                cover = request.FILES['cover']            
+            except:
+                pass
+            else:
+                with open('cover_' + str(count) + '.jpg', 'wb+') as destination:
+                    for chunk in cover.chunks():
                         destination.write(chunk)
-                count = count +1
+                        
+            try:               
+                snapshot = request.FILES['snapshot']            
+            except:
+                pass
+            else:
+                with open('snapshot_' + str(count) + '.jpg', 'wb+') as destination:
+                    for chunk in snapshot.chunks():
+                        destination.write(chunk)
+                        
+            #save into database
+            
+            
+            name            = form.cleaned_data['name']
+            year            = form.cleaned_data['year']
+            synopsis        = form.cleaned_data['synopsis']
+            min_age         = form.cleaned_data['min_age']
+            min_player      = form.cleaned_data['min_player']
+            max_player      = form.cleaned_data['max_player']
+            playing_time    = form.cleaned_data['playing_time']
+            bgg_id          = form.cleaned_data['bgg_id']
+            
+            query = BoardGame(name = name , year = year , synopsis = synopsis , min_age = min_age , min_player = min_player , max_player = max_player , playing_time = playing_time , bgg_id = bgg_id )
+            query.save()
+            
+            
+            
+            
+            
+            
+                
 
             return HttpResponse(  "ok" )
         else:
