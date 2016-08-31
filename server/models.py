@@ -20,7 +20,7 @@ class BoardGame(models.Model):
     min_player      = models.IntegerField()
     max_player      = models.IntegerField()
     playing_time    = models.IntegerField()
-    bgg_id          = models.IntegerField()
+    bgg_id          = models.IntegerField( default = '')
     genres          = models.ManyToManyField( Genre )
     users           = models.ManyToManyField( User , through='UserGame')
     

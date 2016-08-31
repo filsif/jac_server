@@ -22,7 +22,7 @@ class BoardGameForm(forms.Form):
     min_player      = forms.IntegerField()
     max_player      = forms.IntegerField()
     playing_time    = forms.IntegerField()
-    bgg_id          = forms.IntegerField()
+    bgg_id          = forms.IntegerField( required = False )
     
     cover           = forms.FileField(required=False )
     snapshot        = forms.FileField(required=False )

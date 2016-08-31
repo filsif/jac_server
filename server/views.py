@@ -8,6 +8,8 @@ from server.models import BoardGame , Player
 
 from server.forms import *
 
+from django.db.models import Q
+
 from django.contrib.auth import authenticate, login , logout
 
 
@@ -93,33 +95,7 @@ def add_boardgame(request):
     if request.method == 'POST':
         form = BoardGameForm( request.POST , request.FILES )
         
-        if form.is_valid():
-            
-            
-            count = 0
-            
-            cover = None
-            snapshot = None
-            
-            try:
-                cover = request.FILES['cover']            
-            except:
-                pass
-            else:
-                with open('cover_' + str(count) + '.jpg', 'wb+') as destination:
-                    for chunk in cover.chunks():
-                        destination.write(chunk)
-                        
-            try:               
-                snapshot = request.FILES['snapshot']            
-            except:
-                pass
-            else:
-                with open('snapshot_' + str(count) + '.jpg', 'wb+') as destination:
-                    for chunk in snapshot.chunks():
-                        destination.write(chunk)
-                        
-            #save into database
+        if form.is_valid():       
             
             
             name            = form.cleaned_data['name']
@@ -131,15 +107,46 @@ def add_boardgame(request):
             playing_time    = form.cleaned_data['playing_time']
             bgg_id          = form.cleaned_data['bgg_id']
             
-            query = BoardGame(name = name , year = year , synopsis = synopsis , min_age = min_age , min_player = min_player , max_player = max_player , playing_time = playing_time , bgg_id = bgg_id )
-            query.save()
+            '''
+            test if boardgame is already present
+            by name
+            or by bgg_id          
             
+            '''
             
+            obj = None
             
-            
-            
-            
+            try:
+                obj = BoardGame.objects.get(Q(name = name) | Q( bgg_id = bgg_id ) )
+            except BoardGame.DoesNotExist:
+                query = BoardGame(name = name , year = year , synopsis = synopsis , min_age = min_age , min_player = min_player , max_player = max_player , playing_time = playing_time , bgg_id = bgg_id )
+                query.save()
                 
+                
+                count = query.pk
+                
+                cover = None
+                snapshot = None
+                
+                try:
+                    cover = request.FILES['cover']            
+                except:
+                    pass
+                else:
+                    with open('cover_' + str(count) + '.jpg', 'wb+') as destination:
+                        for chunk in cover.chunks():
+                            destination.write(chunk)
+                            
+                try:               
+                    snapshot = request.FILES['snapshot']            
+                except:
+                    pass
+                else:
+                    with open('snapshot_' + str(count) + '.jpg', 'wb+') as destination:
+                        for chunk in snapshot.chunks():
+                            destination.write(chunk)
+            else:
+                pass
 
             return HttpResponse(  "ok" )
         else:
