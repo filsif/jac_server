@@ -12,6 +12,8 @@ from django.db.models import Q
 
 from django.contrib.auth import authenticate, login , logout
 
+import json
+
 
 
 
@@ -96,9 +98,7 @@ def add_boardgame(request):
         form = BoardGameForm( request.POST , request.FILES )
         
         
-        print (request.POST)
-        print (request.FILES)
-        return HttpResponse(  "ok" )
+       
         
         if form.is_valid():       
             
@@ -112,6 +112,8 @@ def add_boardgame(request):
             playing_time    = form.cleaned_data['playing_time']
             bgg_id          = form.cleaned_data['bgg_id']
             
+            #genre           = form.cleaned_data['genre']           
+           
             '''
             test if boardgame is already present
             by name

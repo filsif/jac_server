@@ -1,4 +1,17 @@
 from django import forms
+from server.models import Genre
+
+
+
+
+class StringListField(forms.CharField):
+    def prepare_value(self, value):
+        return ', '.join(value)
+
+    def to_python(self, value):
+        if not value:
+            return []
+        return [item.strip() for item in value.split(',')]
 
 
 class PlayerForm(forms.Form):
@@ -23,6 +36,8 @@ class BoardGameForm(forms.Form):
     max_player      = forms.IntegerField()
     playing_time    = forms.IntegerField()
     bgg_id          = forms.IntegerField( required = False )
+    
+    #genre           = forms.CharField( max_length = 256 ) # json values 
     
     
     
