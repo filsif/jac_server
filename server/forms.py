@@ -37,7 +37,7 @@ class BoardGameForm(forms.Form):
     playing_time    = forms.IntegerField()
     bgg_id          = forms.IntegerField( required = False )
     
-    #genre           = forms.CharField( max_length = 256 ) # json values 
+    genre           = forms.CharField( required = False,max_length = 256 ) # json values 
     
     
     
