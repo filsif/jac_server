@@ -94,7 +94,7 @@ def add_boardgame(request):
     #if not request.user.is_authenticated():
     #    return HttpResponseForbidden()
     
-    print("new request enter.......................")
+    
     
     if request.method == 'POST':
         form = BoardGameForm( request.POST , request.FILES )
@@ -102,7 +102,9 @@ def add_boardgame(request):
         
        
         
-        if form.is_valid():       
+        if form.is_valid():     
+            
+              
             
             
             name            = form.cleaned_data['name']
@@ -118,8 +120,13 @@ def add_boardgame(request):
             
             
             
-            mydict = dict(request.POST.iterlists())        
-            genres = mydict['genre'] # only way to recup a list of forms entries with the same key
+            mydict = dict(request.POST.iterlists())  
+            
+            genres=[]
+            try:      
+                genres = mydict['genre'] # only way to recup a list of forms entries with the same key
+            except:
+                print("no genre for this game")
               
            
             '''
@@ -147,7 +154,7 @@ def add_boardgame(request):
                         for chunk in cover.chunks():
                             destination.write(chunk)
                             
-                snapshot = request.FILES.get('snapshot',None)
+                snapshot = request.FILES.get('thumbnail',None)
                 if snapshot is not None:
                     with open('snapshot_' + str(count) + '.jpg', 'wb+') as destination:
                         for chunk in snapshot.chunks():
@@ -156,19 +163,12 @@ def add_boardgame(request):
                 ''' now write the new genres '''
                 
                 for genre in genres:  
-                    print("genre :" + genre)                  
-                    try:
-                        mygenre = Genre.objects.get(Q(name=genre))
-                    except Genre.DoesNotExist:
-                        print("genre not found add it")
-                        genre_query = Genre( name = genre )
-                        genre_query.save()      
-                        print("after, reference it for " + query.name)                  
-                        query.genres.add( genre_query )       
-                        
-                    else:
-                        print("genre already found , only reference it for " + query.name)
-                        query.genres.add( mygenre)
+                    print("genre :" + genre)
+                    
+                    mygenre, created = Genre.objects.get_or_create( name=genre)                    
+                   
+                    
+                    query.genres.add( mygenre)
                     
                     
                         

@@ -8,10 +8,10 @@ from django.contrib.auth.models import User
 # Create your models here.
 
 class Genre(models.Model):
-    name            = models.CharField( max_length = 64)
+    name            = models.CharField( unique = True, max_length = 64)
     
 class BoardGame(models.Model):
-    name            = models.CharField( max_length=128)
+    name            = models.CharField( unique = True, max_length=128)
     year            = models.IntegerField()
     synopsis        = models.TextField()
     thumbnail       = models.URLField()
@@ -20,7 +20,7 @@ class BoardGame(models.Model):
     min_player      = models.IntegerField()
     max_player      = models.IntegerField()
     playing_time    = models.IntegerField()
-    bgg_id          = models.IntegerField( null = True , default = 0)
+    bgg_id          = models.IntegerField( unique = True , null = True , default = 0)
     genres          = models.ManyToManyField( Genre )
     users           = models.ManyToManyField( User , through='UserGame')
     
@@ -43,12 +43,12 @@ Liste des inscrits : extension de user qui sert à l authentification
 
 class Player(models.Model):
     user            = models.OneToOneField( User , on_delete= models.CASCADE )
-    nickname        = models.CharField( max_length = 64 )    
+    nickname        = models.CharField( unique= True, max_length = 64 )    
     photo           = models.URLField( )
     birthdate       = models.DateField()
     address         = models.CharField( max_length = 256 )    
     mobile_phone    = models.CharField( max_length = 20 )
-    bgg_nickname    = models.CharField( max_length = 64 ,default ='' )
+    bgg_nickname    = models.CharField( unique = True, max_length = 64 ,default ='' )
     bgg_sync        = models.BooleanField( default=False)
     
     
