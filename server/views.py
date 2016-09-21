@@ -10,7 +10,8 @@ from server.forms import *
 
 from django.db.models import Q
 
-from django.contrib.auth import authenticate, login , logout
+from django.contrib.auth import authenticate, login , logout 
+from django.contrib.auth.models import User
 
 import json
 
@@ -64,6 +65,22 @@ def boardgames_name(request, boardgame_name):
     
     return HttpResponse(data)
 
+def check_nickname( request , nickname ):
+    try:
+        User.objects.get( username = nickname )
+    except:    
+        return HttpResponse("{ result : false }")
+    else:
+        return HttpResponse("{ result : true }")
+    
+
+def check_email( request , email ):
+    try:
+        User.objects.get( email = email )    
+    except:
+        return HttpResponse("{ result : false }")
+    else:
+        return HttpResponse("{ result : true }")
 
 def user_login( request, user , password ):
     
@@ -214,3 +231,7 @@ def add_player(request):
     else:
         raise Http404("Not a POST request")
             
+            
+def players(request):   
+    data = szs.serialize("json",Player.objects.all())
+    return HttpResponse( data )
