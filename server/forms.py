@@ -14,15 +14,16 @@ class StringListField(forms.CharField):
         return [item.strip() for item in value.split(',')]
 
 
-class PlayerForm(forms.Form):
-    firstname       = forms.CharField( max_length = 64 )
-    lastname        = forms.CharField( max_length = 64 )
-    nickname        = forms.CharField( max_length = 64 )    
-    photo           = forms.URLField( )
-    age             = forms.IntegerField()
-    address         = forms.CharField( max_length = 256 )
+class PlayerForm(forms.Form):    
+    username        = forms.CharField( max_length = 64 )  
+    password        = forms.CharField( max_length = 64 )
     email           = forms.EmailField()
-    mobile_phone    = forms.CharField( max_length = 20 )
+    photo           = forms.URLField(required = False )
+    firstname       = forms.CharField( required = False,max_length = 64 )
+    lastname        = forms.CharField( required = False,max_length = 64 )    
+    address         = forms.CharField(required = False, max_length = 256 )    
+    bggnickname     = forms.CharField(required = False, max_length = 64 )
+    mobilephone     = forms.CharField( required = False,max_length = 20 )
     
     
     

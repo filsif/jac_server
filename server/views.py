@@ -1,26 +1,15 @@
 from django.shortcuts import render
-
 from django.http import HttpResponse , Http404 ,HttpResponseForbidden
-
 from django.core import serializers as szs
-
 from server.models import BoardGame , Player
-
 from server.forms import *
-
 from django.db.models import Q
-
 from django.contrib.auth import authenticate, login , logout 
 from django.contrib.auth.models import User
-
 import json
-
-
-
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
-
 
 def boardgames_id(request, boardgame_id):
     
@@ -41,7 +30,6 @@ def boardgames_id(request, boardgame_id):
 def boardgames(request ):     
     data = szs.serialize("json",BoardGame.objects.all())
     return HttpResponse( data )
-
 
 def boardgames_name(request, boardgame_name):
     
@@ -69,18 +57,18 @@ def check_nickname( request , nickname ):
     try:
         User.objects.get( username = nickname )
     except:    
-        return HttpResponse("{ result : false }")
+        return HttpResponse('{ "result" : false }')
     else:
-        return HttpResponse("{ result : true }")
+        return HttpResponse('{ "result" : true }')
     
 
 def check_email( request , email ):
     try:
         User.objects.get( email = email )    
     except:
-        return HttpResponse("{ result : false }")
+        return HttpResponse('{ "result" : false }')
     else:
-        return HttpResponse("{ result : true }")
+        return HttpResponse('{ "result" : true }')
 
 def user_login( request, user , password ):
     
@@ -95,9 +83,6 @@ def user_login( request, user , password ):
         return HttpResponse("ok"  )        
     else:
         return HttpResponseForbidden()
-        
-            
-
 
 def user_logout( request ):
     if request.user.is_authenticated():            
@@ -106,24 +91,13 @@ def user_logout( request ):
     
     return HttpResponse("vide")
         
-        
 def add_boardgame(request):
     #if not request.user.is_authenticated():
     #    return HttpResponseForbidden()
-    
-    
-    
+   
     if request.method == 'POST':
         form = BoardGameForm( request.POST , request.FILES )
-        
-        
-       
-        
-        if form.is_valid():     
-            
-              
-            
-            
+        if form.is_valid():            
             name            = form.cleaned_data['name']
             year            = form.cleaned_data['year']
             synopsis        = form.cleaned_data['synopsis']            
@@ -131,10 +105,8 @@ def add_boardgame(request):
             min_player      = form.cleaned_data['min_player']
             max_player      = form.cleaned_data['max_player']
             playing_time    = form.cleaned_data['playing_time']
-            bgg_id          = form.cleaned_data['bgg_id']
-            
-            #genre           = form.cleaned_data['genre']   
-            
+            bgg_id          = form.cleaned_data['bgg_id']            
+            #genre           = form.cleaned_data['genre']          
             
             
             mydict = dict(request.POST.iterlists())  
@@ -181,15 +153,8 @@ def add_boardgame(request):
                 
                 for genre in genres:  
                     print("genre :" + genre)
-                    
-                    mygenre, created = Genre.objects.get_or_create( name=genre)                    
-                   
-                    
-                    query.genres.add( mygenre)
-                    
-                    
-                        
-            
+                    mygenre, created = Genre.objects.get_or_create( name=genre)
+                    query.genres.add( mygenre)    
 
             return HttpResponse(  "ok" )
         else:
@@ -197,28 +162,25 @@ def add_boardgame(request):
             return HttpResponseForbidden()
     else:
         raise Http404("Not a POST request")
-    
-    
 
 def add_player(request):
-    if request.method == 'POST':
-        print ("TOTO : " + str(request.POST)) 
+    if request.method == 'POST':        
         form = PlayerForm(request.POST)
         
         if form.is_valid():
             firstname       = form.cleaned_data['firstname']
             lastname        = form.cleaned_data['lastname']
-            nickname        = form.cleaned_data['nickname']
-            photo           = form.cleaned_data['photo']
-            age             = form.cleaned_data['age']
+            username        = form.cleaned_data['username']
+            photo           = form.cleaned_data['photo']            
             address         = form.cleaned_data['address']
             email           = form.cleaned_data['email']
-            mobile_phone    = form.cleaned_data['mobile_phone']
+            password        = form.cleaned_data['password']
+            mobilephone     = form.cleaned_data['mobilephone']
+            bggnickname     = form.cleaned_data['bggnickname']
             
-            query = Player(firstname = firstname , lastname = lastname , nickname = nickname , photo = photo , age = age , address = address , email = email , mobile_phone = mobile_phone )
-            query.save()
-            
-            
+            #query = User(first_name = firstname , last_name = lastname , username = username , photo = photo , bgg_nickname = bggnickname , address = address , email = email , mobile_phone = mobilephone , password = password)
+            query = User(first_name = firstname , last_name = lastname , username = username , email = email ,  password = password)
+            query.save()           
             
           
             data = szs.serialize("json" , Player.objects.filter( pk = query.pk ) )

@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 
 from django.db import models
 from django.contrib.auth.models import User
+from django.db.models.signals import post_save
 
 
 # Create your models here.
@@ -40,14 +41,22 @@ class Location(models.Model):
 '''
 Liste des inscrits : extension de user qui sert à l authentification
 ''' 
+    
+
+def create_player(sender, **kwargs):
+    user = kwargs["instance"]
+    if kwargs["created"]:
+        player = Player(user=user)
+        player.save()
+        
+post_save.connect(create_player, sender=User)
 
 class Player(models.Model):
-    user            = models.OneToOneField( User , on_delete= models.CASCADE )
-    nickname        = models.CharField( unique= True, max_length = 64 )    
-    photo           = models.URLField( )
-    birthdate       = models.DateField()
-    address         = models.CharField( max_length = 256 )    
-    mobile_phone    = models.CharField( max_length = 20 )
+    user            = models.OneToOneField( User , on_delete= models.CASCADE )       
+    photo           = models.URLField( null = True )
+    birthdate       = models.DateField(null = True)
+    address         = models.CharField( null = True, max_length = 256 )    
+    mobile_phone    = models.CharField( null = True , max_length = 20 )
     bgg_nickname    = models.CharField( unique = True, max_length = 64 ,default ='' )
     bgg_sync        = models.BooleanField( default=False)
     
