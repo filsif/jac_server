@@ -44,7 +44,7 @@ Liste des inscrits : extension de user qui sert à l authentification
     
 
 def create_player(sender, **kwargs):
-    user = kwargs["instance"]
+    user = kwargs["instance"]   
     if kwargs["created"]:
         player = Player(user=user)
         player.save()

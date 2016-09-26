@@ -179,15 +179,24 @@ def add_player(request):
             bggnickname     = form.cleaned_data['bggnickname']
             
             #query = User(first_name = firstname , last_name = lastname , username = username , photo = photo , bgg_nickname = bggnickname , address = address , email = email , mobile_phone = mobilephone , password = password)
-            query = User(first_name = firstname , last_name = lastname , username = username , email = email ,  password = password)
-            query.save()           
+            user = User(first_name = firstname , last_name = lastname , username = username , email = email )                     
+            user.set_password( password )            
+            user.save()  
+            
+            u = User.objects.get( pk = user.pk )            
+            
+            player = u.player
+            player.bgg_nickname = bggnickname
+            player.address = address
+            player.mobile_phone = mobilephone
+            player.save()     
             
           
-            data = szs.serialize("json" , Player.objects.filter( pk = query.pk ) )
+            #data = szs.serialize("json" , Player.objects.filter( pk = user.pk ) )
             
             
             
-            return HttpResponse(  data )
+            return HttpResponse("")
         else:
             raise Http404("Form is not valid : " + str(form.errors) )
     else:
@@ -197,3 +206,17 @@ def add_player(request):
 def players(request):   
     data = szs.serialize("json",Player.objects.all())
     return HttpResponse( data )
+
+def player_infos( request ):
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden()
+    u = User.objects.get( pk = request.user.pk )
+    objs = []
+    #obj = dict( u.items() , u.player.items())
+    print (u)
+    print (u.player)
+    objs.append(u)
+    objs.append(u.player)
+    data = szs.serialize("json" ,u.player )
+    return HttpResponse( data )
+    
