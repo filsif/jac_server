@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.http import HttpResponse , Http404 ,HttpResponseForbidden
 from django.core import serializers as szs
-from server.models import BoardGame , Player
+from server.models import BoardGame , Player , UserGame
 from server.forms import *
 from django.db.models import Q
 from django.contrib.auth import authenticate, login , logout 
@@ -92,8 +92,8 @@ def user_logout( request ):
     return HttpResponse("vide")
         
 def add_boardgame(request):
-    #if not request.user.is_authenticated():
-    #    return HttpResponseForbidden()
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden()
    
     if request.method == 'POST':
         form = BoardGameForm( request.POST , request.FILES )
@@ -124,37 +124,52 @@ def add_boardgame(request):
             or by bgg_id          
             
             '''            
-            obj = None
+            cur_bg = None
+            
+            cur_key = None
             
             try:
-                obj = BoardGame.objects.get(Q(name = name) | Q( bgg_id = bgg_id ) )
+                cur_bg = BoardGame.objects.get(Q(name = name) | Q( bgg_id = bgg_id ) )
             except BoardGame.DoesNotExist:
-                query = BoardGame(name = name , year = year , synopsis = synopsis , min_age = min_age , min_player = min_player , max_player = max_player , playing_time = playing_time , bgg_id = bgg_id )
-                query.save()               
+                cur_bg = BoardGame(name = name , year = year , synopsis = synopsis , min_age = min_age , min_player = min_player , max_player = max_player , playing_time = playing_time , bgg_id = bgg_id )
+                cur_bg.save()               
                 
-                count = query.pk
+                cur_key = cur_bg.pk
                 
                 cover = None
                 snapshot = None               
                 
                 cover = request.FILES.get('cover',None)            
                 if cover is not None:
-                    with open('cover_' + str(count) + '.jpg', 'wb+') as destination:
+                    with open('cover_' + str(cur_key) + '.jpg', 'wb+') as destination:
                         for chunk in cover.chunks():
                             destination.write(chunk)
+                    cur_bg.cover = 'http://127.0.0.1/cover_' + str(cur_key) + '.jpg'
+                    cur_bg.save()
                             
                 snapshot = request.FILES.get('thumbnail',None)
                 if snapshot is not None:
-                    with open('snapshot_' + str(count) + '.jpg', 'wb+') as destination:
+                    with open('snapshot_' + str(cur_key) + '.jpg', 'wb+') as destination:
                         for chunk in snapshot.chunks():
                             destination.write(chunk)
+                    cur_bg.thumbnail = 'http://127.0.0.1/snapshot_' + str(cur_key) + '.jpg'
+                    cur_bg.save()
                             
                 ''' now write the new genres '''
                 
                 for genre in genres:  
-                    print("genre :" + genre)
+                    #print("genre :" + genre)
                     mygenre, created = Genre.objects.get_or_create( name=genre)
-                    query.genres.add( mygenre)    
+                    cur_bg.genres.add( mygenre)    
+            else:
+                cur_key = cur_bg.pk
+                    
+            '''
+            now reference current user with game added or already existing
+            '''
+            player_boardgame = UserGame( user=  request.user  , boardgame = cur_bg , owned = True , explanation = False) 
+            player_boardgame.save()
+            
 
             return HttpResponse(  "ok" )
         else:
@@ -176,9 +191,8 @@ def add_player(request):
             email           = form.cleaned_data['email']
             password        = form.cleaned_data['password']
             mobilephone     = form.cleaned_data['mobilephone']
-            bggnickname     = form.cleaned_data['bggnickname']
+            bggnickname     = form.cleaned_data['bggnickname']           
             
-            #query = User(first_name = firstname , last_name = lastname , username = username , photo = photo , bgg_nickname = bggnickname , address = address , email = email , mobile_phone = mobilephone , password = password)
             user = User(first_name = firstname , last_name = lastname , username = username , email = email )                     
             user.set_password( password )            
             user.save()  
@@ -189,12 +203,7 @@ def add_player(request):
             player.bgg_nickname = bggnickname
             player.address = address
             player.mobile_phone = mobilephone
-            player.save()     
-            
-          
-            #data = szs.serialize("json" , Player.objects.filter( pk = user.pk ) )
-            
-            
+            player.save()
             
             return HttpResponse("")
         else:
@@ -213,10 +222,10 @@ def player_infos( request ):
     u = User.objects.get( pk = request.user.pk )
     objs = []
     #obj = dict( u.items() , u.player.items())
-    print (u)
-    print (u.player)
+    #print (u)
+    #print (u.player)
     objs.append(u)
     objs.append(u.player)
-    data = szs.serialize("json" ,u.player )
+    data = szs.serialize("json" ,objs )
     return HttpResponse( data )
     

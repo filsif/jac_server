@@ -71,8 +71,8 @@ class UserGame(models.Model):
     boardgame       = models.ForeignKey ( BoardGame , on_delete = models.CASCADE )
     owned           = models.BooleanField()
     explanation     = models.BooleanField()
-    qr_code         = models.CharField( max_length = 1024 )
-    nfc_tag         = models.CharField( max_length = 1024 )
+    qr_code         = models.CharField( null = True, max_length = 1024 )
+    nfc_tag         = models.CharField( null = True, max_length = 1024 )
 
     
 class Event(models.Model):
