@@ -26,6 +26,16 @@ class BoardGame(models.Model):
     users           = models.ManyToManyField( User , through='UserGame')
     
 
+class BoardGameVersion( models.Model):
+    name            = models.CharField( max_length=128)
+    boardgame       = models.ForeignKey ( BoardGame , on_delete = models.CASCADE )
+    thumbnail       = models.URLField()
+    cover           = models.URLField()
+    year            = models.IntegerField()
+    language        = models.CharField( max_length=64)
+    bgg_version_id  = models.IntegerField( unique = True , null = True , default = 0)
+    
+
 class EventType(models.Model):
     name            = models.CharField( max_length = 64 )
     repetable       = models.BooleanField()
@@ -69,6 +79,7 @@ Liste des jeux des joueurs
 class UserGame(models.Model):
     user            = models.ForeignKey ( User , on_delete = models.CASCADE )
     boardgame       = models.ForeignKey ( BoardGame , on_delete = models.CASCADE )
+    bg_version      = models.ForeignKey ( null = True, BoardGameVersion , on_delete = models.CASCADE )
     owned           = models.BooleanField()
     explanation     = models.BooleanField()
     qr_code         = models.CharField( null = True, max_length = 1024 )
@@ -119,7 +130,7 @@ description d'une partie lors d'un événement
 class Match(models.Model):
     event           = models.ForeignKey ( Event,  on_delete = models.CASCADE )
     boardgame       = models.ForeignKey ( BoardGame , on_delete = models.CASCADE )
-    users         = models.ManyToManyField( User , through = 'MatchUser')
+    users           = models.ManyToManyField( User , through = 'MatchUser')
       
 
 class MatchUser(models.Model):

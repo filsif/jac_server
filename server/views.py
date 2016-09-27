@@ -226,6 +226,6 @@ def player_infos( request ):
     #print (u.player)
     objs.append(u)
     objs.append(u.player)
-    data = szs.serialize("json" ,objs )
+    data = szs.serialize("json" ,objs , fields=('first_name' , 'last_name' , 'address' , 'bgg_nickname') )
     return HttpResponse( data )
     
