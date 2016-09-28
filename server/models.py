@@ -79,7 +79,7 @@ Liste des jeux des joueurs
 class UserGame(models.Model):
     user            = models.ForeignKey ( User , on_delete = models.CASCADE )
     boardgame       = models.ForeignKey ( BoardGame , on_delete = models.CASCADE )
-    bg_version      = models.ForeignKey ( null = True, BoardGameVersion , on_delete = models.CASCADE )
+    bg_version      = models.ForeignKey ( BoardGameVersion , on_delete = models.CASCADE, null = True )
     owned           = models.BooleanField()
     explanation     = models.BooleanField()
     qr_code         = models.CharField( null = True, max_length = 1024 )

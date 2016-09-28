@@ -79,8 +79,15 @@ def user_login( request, user , password ):
     newuser = authenticate(username=user, password=password)
     if newuser is not None:
         login(request, newuser)
-        # Redirect to a success page.
-        return HttpResponse("ok"  )        
+        # Redirect to a success page.    
+        
+        u = User.objects.get( pk = request.user.pk )
+        objs = []
+        
+        objs.append(u)
+        objs.append(u.player)
+        data = szs.serialize("json" ,objs , fields=('first_name' , 'last_name' , 'address' , 'bgg_nickname') )
+        return HttpResponse( data )        
     else:
         return HttpResponseForbidden()
 
