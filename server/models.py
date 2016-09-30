@@ -27,12 +27,12 @@ class BoardGame(models.Model):
     
 
 class BoardGameVersion( models.Model):
-    name            = models.CharField( max_length=128)
+    name            = models.CharField( max_length=128 , default = "")
     boardgame       = models.ForeignKey ( BoardGame , on_delete = models.CASCADE )
-    thumbnail       = models.URLField()
-    cover           = models.URLField()
-    year            = models.IntegerField()
-    language        = models.CharField( max_length=64)
+    thumbnail       = models.URLField(null = True )
+    cover           = models.URLField( null = True )
+    year            = models.IntegerField( default = 0 )
+    language        = models.CharField( max_length=64 , default = "")
     bgg_version_id  = models.IntegerField( unique = True , null = True , default = 0)
     
 

@@ -29,7 +29,8 @@ class PlayerForm(forms.Form):
     
 class BoardGameForm(forms.Form):
     
-    name            = forms.CharField( max_length=128)
+    metadata        = forms.CharField()
+    '''
     year            = forms.IntegerField()
     synopsis        = forms.CharField( max_length = 4096)    
     min_age         = forms.IntegerField()
@@ -39,7 +40,7 @@ class BoardGameForm(forms.Form):
     bgg_id          = forms.IntegerField( required = False )
     
     genre           = forms.CharField( required = False,max_length = 256 ) # json values 
-    
+    '''
     
     
     cover           = forms.FileField(required=False )

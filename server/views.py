@@ -1,12 +1,15 @@
+# coding: utf8
 from django.shortcuts import render
 from django.http import HttpResponse , Http404 ,HttpResponseForbidden
 from django.core import serializers as szs
-from server.models import BoardGame , Player , UserGame
+from server.models import BoardGame , Player , UserGame , BoardGameVersion
 from server.forms import *
 from django.db.models import Q
 from django.contrib.auth import authenticate, login , logout 
 from django.contrib.auth.models import User
 import json
+import sys
+
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -102,28 +105,14 @@ def add_boardgame(request):
     if not request.user.is_authenticated():
         return HttpResponseForbidden()
    
-    if request.method == 'POST':
+    if request.method == 'POST':       
+       
         form = BoardGameForm( request.POST , request.FILES )
         if form.is_valid():            
-            name            = form.cleaned_data['name']
-            year            = form.cleaned_data['year']
-            synopsis        = form.cleaned_data['synopsis']            
-            min_age         = form.cleaned_data['min_age']
-            min_player      = form.cleaned_data['min_player']
-            max_player      = form.cleaned_data['max_player']
-            playing_time    = form.cleaned_data['playing_time']
-            bgg_id          = form.cleaned_data['bgg_id']            
-            #genre           = form.cleaned_data['genre']          
+            metadata          = form.cleaned_data['metadata']
+            bg_info = json.loads( metadata )
             
             
-            mydict = dict(request.POST.iterlists())  
-            
-            genres=[]
-            try:      
-                genres = mydict['genre'] # only way to recup a list of forms entries with the same key
-            except:
-                print("no genre for this game")
-              
            
             '''
             test if boardgame is already present
@@ -136,9 +125,9 @@ def add_boardgame(request):
             cur_key = None
             
             try:
-                cur_bg = BoardGame.objects.get(Q(name = name) | Q( bgg_id = bgg_id ) )
+                cur_bg = BoardGame.objects.get(Q(name = bg_info['title']) | Q( bgg_id = bg_info['bgg_id'] ) )
             except BoardGame.DoesNotExist:
-                cur_bg = BoardGame(name = name , year = year , synopsis = synopsis , min_age = min_age , min_player = min_player , max_player = max_player , playing_time = playing_time , bgg_id = bgg_id )
+                cur_bg = BoardGame(name = bg_info['title'] , year = bg_info['year'] , synopsis = bg_info['synopsis'] , min_age = bg_info['min_age'] , min_player = bg_info['min_player'] , max_player = bg_info['max_player'] , playing_time = bg_info['duration'] , bgg_id = bg_info['bgg_id'] )
                 cur_bg.save()               
                 
                 cur_key = cur_bg.pk
@@ -164,18 +153,37 @@ def add_boardgame(request):
                             
                 ''' now write the new genres '''
                 
-                for genre in genres:  
+                for genre in bg_info['genres']:  
                     #print("genre :" + genre)
                     mygenre, created = Genre.objects.get_or_create( name=genre)
                     cur_bg.genres.add( mygenre)    
             else:
                 cur_key = cur_bg.pk
-                    
+            
+            ''' versions       
+                
+            
             '''
-            now reference current user with game added or already existing
-            '''
-            player_boardgame = UserGame( user=  request.user  , boardgame = cur_bg , owned = True , explanation = False) 
-            player_boardgame.save()
+                
+            if len(bg_info['versions'])>0:               
+                for vers in bg_info['versions']:            
+                   myversion , v_created = BoardGameVersion.objects.get_or_create( bgg_version_id = vers['version_id'] , boardgame = cur_bg)
+                   myversion.name = vers['title']
+                   myversion.year = vers['year']
+                   myversion.bgg_version_id = vers['version_id']
+                   myversion.language = vers['language']
+                   myversion.boardgame = cur_bg
+                   myversion.save()
+                   
+                   player_boardgame = UserGame( user=  request.user  , boardgame = cur_bg , bg_version = myversion , owned = True , explanation = False) 
+                   player_boardgame.save()
+                
+            else:     
+                '''
+                now reference current user with game added or already existing
+                '''
+                player_boardgame = UserGame( user=  request.user  , boardgame = cur_bg , owned = True , explanation = False) 
+                player_boardgame.save()
             
 
             return HttpResponse(  "ok" )
