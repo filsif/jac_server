@@ -11,10 +11,12 @@ from django.db.models.signals import post_save
 class Genre(models.Model):
     name            = models.CharField( unique = True, max_length = 64)
     
+
+    
 class BoardGame(models.Model):
     name            = models.CharField( unique = True, max_length=128)
     year            = models.IntegerField()
-    synopsis        = models.TextField()
+    synopsis        = models.TextField(max_length = 16384)
     thumbnail       = models.URLField()
     cover           = models.URLField()
     min_age         = models.IntegerField()
@@ -24,6 +26,9 @@ class BoardGame(models.Model):
     bgg_id          = models.IntegerField( unique = True , null = True , default = 0)
     genres          = models.ManyToManyField( Genre )
     users           = models.ManyToManyField( User , through='UserGame')
+    
+    
+ 
     
 
 class BoardGameVersion( models.Model):

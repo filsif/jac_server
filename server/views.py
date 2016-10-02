@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 import json
 import sys
 
+from rest_framework import serializers as ss
+
 
 def index(request):
     return HttpResponse("Hello, world. You're at the polls index.")
@@ -212,6 +214,41 @@ def add_boardgame(request):
             return HttpResponseForbidden()
     else:
         raise Http404("Not a POST request")
+    
+    
+def player_boardgames( request ):
+    if not request.user.is_authenticated():
+        return HttpResponseForbidden()
+    
+    games = UserGame.objects.select_related('bg_version', 'boardgame').filter( user__id = request.user.pk )
+    
+    ''' own serialization because ... pfff
+    
+    '''    
+    datas = szs.serialize("json", games )
+    #return HttpResponse( datas )
+    
+    json_datas = json.loads( datas )
+    for data in json_datas:        
+        bg = data['fields']['boardgame']
+        v = data['fields']['bg_version']        
+        pk = int(data['pk'])        
+        obj_bg = []
+        obj_bg.append(games.get(pk = pk).boardgame)
+        data_bg = szs.serialize("json", obj_bg )        
+        json_bg = json.loads( data_bg )        
+        data['fields']['boardgame'] = json_bg        
+        if v is not None:
+            obj_v = []
+            obj_v.append(games.get(pk = pk).bg_version)
+            data_v = szs.serialize("json", obj_v )        
+            json_v = json.loads( data_v )        
+            data['fields']['bg_version'] = json_v    
+    
+    return HttpResponse( str(json_datas) )
+    
+    
+    
 
 def add_player(request):
     if request.method == 'POST':        

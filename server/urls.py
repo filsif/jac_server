@@ -1,4 +1,4 @@
-from django.conf.urls import url
+from django.conf.urls import include, patterns, url
 
 from . import views
 
@@ -12,7 +12,9 @@ urlpatterns = [
     url(r'^player/email/(?P<email>(.)+)/$', views.check_email ),
     url(r'^player/nickname/(?P<nickname>(.)+)/$', views.check_nickname ),
     url(r'^player/infos/$' , views.player_infos ),
+    url(r'^player/boardgames/$' , views.player_boardgames ),
     url(r'^players$', views.players ),
     url(r'^login/(?P<user>(.)+)/(?P<password>(.)+)/$', views.user_login, name='login'),
     url(r'^logout/$', views.user_logout, name='logout'),
 ]
+
