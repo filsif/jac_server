@@ -10,7 +10,7 @@ from django.contrib.auth.models import User
 import json
 import sys
 
-from rest_framework import serializers as ss
+
 
 
 def index(request):
@@ -226,8 +226,7 @@ def player_boardgames( request ):
     
     '''    
     datas = szs.serialize("json", games )
-    #return HttpResponse( datas )
-    
+        
     json_datas = json.loads( datas )
     for data in json_datas:        
         bg = data['fields']['boardgame']
@@ -242,10 +241,11 @@ def player_boardgames( request ):
             obj_v = []
             obj_v.append(games.get(pk = pk).bg_version)
             data_v = szs.serialize("json", obj_v )        
+            
             json_v = json.loads( data_v )        
             data['fields']['bg_version'] = json_v    
-    
-    return HttpResponse( str(json_datas) )
+
+    return HttpResponse( json.dumps(json_datas) )
     
     
     
