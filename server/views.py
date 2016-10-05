@@ -174,12 +174,7 @@ def add_boardgame(request):
                     myversion.year = vers['year']
                     myversion.bgg_version_id = vers['version_id']
                     myversion.language = vers['language']
-                    myversion.boardgame = cur_bg
-                    myversion.save()
-                   
-                    player_boardgame = UserGame( user=  request.user  , boardgame = cur_bg , bg_version = myversion , owned = True , explanation = False) 
-                    player_boardgame.save()
-                   
+                    myversion.boardgame = cur_bg              
                    
                     cover_v = None
                     snapshot_v = None               
@@ -189,16 +184,19 @@ def add_boardgame(request):
                         with open('cover_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg', 'wb+') as destination:
                             for chunk in cover_v.chunks():
                                 destination.write(chunk)
-                        cur_bg.cover = 'http://127.0.0.1/cover_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg'
-                        cur_bg.save()
+                        myversion.cover = 'http://127.0.0.1/cover_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg'
+                        
                                 
                     snapshot_v = request.FILES.get('thumbnail_'+ str(vers['version_id']),None)
                     if snapshot_v is not None:
                         with open('snapshot_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg', 'wb+') as destination:
                             for chunk in snapshot_v.chunks():
                                 destination.write(chunk)
-                        cur_bg.thumbnail = 'http://127.0.0.1/snapshot_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg'
-                        cur_bg.save()
+                        myversion.thumbnail = 'http://127.0.0.1/snapshot_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg'                   
+                    
+                    myversion.save()
+                    player_boardgame = UserGame( user=  request.user  , boardgame = cur_bg , bg_version = myversion , owned = True , explanation = False) 
+                    player_boardgame.save()
                 
             else:     
                 '''
