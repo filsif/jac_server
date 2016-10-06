@@ -10,6 +10,8 @@ from django.contrib.auth.models import User
 import json
 import sys
 
+import hashlib
+
 
 
 
@@ -139,17 +141,24 @@ def add_boardgame(request):
                 
                 cover = request.FILES.get('cover',None)            
                 if cover is not None:
+                    
                     with open('cover_' + str(cur_key) + '.jpg', 'wb+') as destination:
+                        hash_md5 = hashlib.md5()
                         for chunk in cover.chunks():
                             destination.write(chunk)
+                            hash_md5.update(chunk)
+                        cur_bg.cover_md5 = hash_md5.hexdigest()
                     cur_bg.cover = 'http://127.0.0.1/cover_' + str(cur_key) + '.jpg'
                     cur_bg.save()
                             
                 snapshot = request.FILES.get('thumbnail',None)
                 if snapshot is not None:
                     with open('snapshot_' + str(cur_key) + '.jpg', 'wb+') as destination:
+                        hash_md5 = hashlib.md5()
                         for chunk in snapshot.chunks():
                             destination.write(chunk)
+                            hash_md5.update(chunk)
+                        cur_bg.thumbnail_md5 = hash_md5.hexdigest()
                     cur_bg.thumbnail = 'http://127.0.0.1/snapshot_' + str(cur_key) + '.jpg'
                     cur_bg.save()
                             
@@ -182,16 +191,22 @@ def add_boardgame(request):
                     cover_v = request.FILES.get('cover_'+ str(vers['version_id']),None)            
                     if cover_v is not None:
                         with open('cover_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg', 'wb+') as destination:
+                            hash_md5 = hashlib.md5()
                             for chunk in cover_v.chunks():
                                 destination.write(chunk)
+                                hash_md5.update(chunk)
+                            myversion.cover_md5 = hash_md5.hexdigest()
                         myversion.cover = 'http://127.0.0.1/cover_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg'
                         
                                 
                     snapshot_v = request.FILES.get('thumbnail_'+ str(vers['version_id']),None)
                     if snapshot_v is not None:
                         with open('snapshot_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg', 'wb+') as destination:
+                            hash_md5 = hashlib.md5()
                             for chunk in snapshot_v.chunks():
                                 destination.write(chunk)
+                                hash_md5.update(chunk)
+                            myversion.thumbnail_md5 = hash_md5.hexdigest()
                         myversion.thumbnail = 'http://127.0.0.1/snapshot_' + str(cur_key) + "_" + str(vers['version_id']) + '.jpg'                   
                     
                     myversion.save()
